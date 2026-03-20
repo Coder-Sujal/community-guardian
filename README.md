@@ -484,32 +484,163 @@ npm test
 
 ### Prerequisites
 - Node.js 18+
-- A Supabase project (free tier works)
-- OpenAI API key (optional — app works without it using fallback)
+- A Supabase account (free tier works fine)
+- OpenAI API key (optional — the app works without it using the fallback system)
 
-### Setup
+### Step 1: Clone the Repo
 
-1. **Clone the repo**
 ```bash
 git clone https://github.com/your-username/community-guardian.git
 cd community-guardian
 ```
 
-2. **Backend setup**
-```bash
-cd backend
-npm install
-cp .env.example .env
-# Edit .env with your Supabase and OpenAI keys
+### Step 2: Set Up Supabase Database
+
+1. Go to [supabase.com](https://supabase.com) and create a new project (free tier is fine)
+2. Once your project is ready, go to **SQL Editor** → **New Query**
+3. Paste the following SQL and click **Run**:
+
+```sql
+-- =============================================
+-- Community Guardian - Full Database Setup
+-- =============================================
+
+-- 1. Users table
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  display_name TEXT NOT NULL,
+  location_lat DOUBLE PRECISION,
+  location_lng DOUBLE PRECISION,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 2. Incidents table (stores all safety alerts)
+CREATE TABLE IF NOT EXISTS incidents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  external_id TEXT,
+  title TEXT NOT NULL,
+  description TEXT,
+  category TEXT NOT NULL,
+  severity TEXT NOT NULL,
+  location_lat DOUBLE PRECISION,
+  location_lng DOUBLE PRECISION,
+  location_radius DOUBLE PRECISION,
+  source TEXT NOT NULL,
+  source_url TEXT,
+  verified BOOLEAN DEFAULT FALSE,
+  ai_processed BOOLEAN DEFAULT FALSE,
+  ai_confidence DOUBLE PRECISION,
+  action_step TEXT,
+  steps JSONB,
+  content_hash TEXT,
+  article_url TEXT,
+  image_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  expires_at TIMESTAMPTZ
+);
+
+-- 3. Circles table (Safe Circles / neighborhood groups)
+CREATE TABLE IF NOT EXISTS circles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  invite_code TEXT UNIQUE NOT NULL,
+  owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 4. Circle members (many-to-many: users <-> circles)
+CREATE TABLE IF NOT EXISTS circle_members (
+  circle_id UUID REFERENCES circles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  joined_at TIMESTAMPTZ DEFAULT now(),
+  PRIMARY KEY (circle_id, user_id)
+);
+
+-- 5. Messages (real-time chat inside circles)
+CREATE TABLE IF NOT EXISTS messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  circle_id UUID REFERENCES circles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 6. Location shares (temporary live location sharing)
+CREATE TABLE IF NOT EXISTS location_shares (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  circle_id UUID REFERENCES circles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  lat DOUBLE PRECISION NOT NULL,
+  lng DOUBLE PRECISION NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 7. Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_incidents_category ON incidents(category);
+CREATE INDEX IF NOT EXISTS idx_incidents_created ON incidents(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_incidents_content_hash ON incidents(content_hash);
+CREATE INDEX IF NOT EXISTS idx_messages_circle ON messages(circle_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_location_shares_circle ON location_shares(circle_id);
+CREATE INDEX IF NOT EXISTS idx_circle_members_user ON circle_members(user_id);
 ```
 
-3. **Frontend setup**
+4. After running the SQL, go to **Settings** → **API** and copy:
+   - **Project URL** → this is your `SUPABASE_URL`
+   - **service_role key** (under "Project API keys") → this is your `SUPABASE_SERVICE_KEY`
+
+### Step 3: Configure Environment Variables
+
 ```bash
+cd backend
+cp .env.example .env
+```
+
+Edit the `.env` file with your keys:
+
+```env
+# Server
+PORT=3001
+
+# JWT Secret (use any random string)
+JWT_SECRET=your-super-secret-jwt-key-change-this
+
+# Supabase (from Step 2)
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=your-service-role-key
+
+# OpenAI (optional - app works without it using fallback)
+OPENAI_API_KEY=sk-your-openai-api-key
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:5173
+```
+
+### Step 4: Install Dependencies
+
+```bash
+# Backend
+cd backend
+npm install
+
+# Frontend (in a new terminal)
 cd frontend
 npm install
 ```
 
-4. **Run the app**
+### Step 5: Seed Sample Data (Optional)
+
+```bash
+cd backend
+npx tsx server/seed.ts
+```
+
+This inserts sample alerts so you can see the app in action immediately.
+
+### Step 6: Run the App
+
 ```bash
 # Terminal 1 - Backend
 cd backend
@@ -520,17 +651,43 @@ cd frontend
 npm run dev
 ```
 
-5. Open `http://localhost:5173` in your browser
+Open `http://localhost:5173` in your browser. Register a new account and you're in.
 
-### Environment Variables
+---
 
-```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_anon_key
-OPENAI_API_KEY=your_openai_key  # Optional - fallback works without it
-JWT_SECRET=your_jwt_secret
-PORT=3000
-```
+## 🔮 Future Improvements
+
+| Improvement | Description |
+|-------------|-------------|
+| **Push Notifications** | Send real-time push notifications to users when a HIGH severity alert is detected near their location (via Web Push API or Firebase Cloud Messaging). |
+| **Mobile App** | Build a React Native version for iOS and Android with background location tracking and native push notifications. |
+| **More Data Sources** | Integrate additional sources like WHO health alerts, local police APIs, earthquake monitoring (USGS), and air quality indexes. |
+| **Multi-Language Support** | Translate alerts and the UI into regional languages (Hindi, Kannada, Tamil, etc.) for wider accessibility. |
+| **Alert Upvote/Downvote** | Let community members vote on alert accuracy to improve verification over time with crowd-sourced trust scores. |
+| **Emergency SOS Button** | One-tap SOS that shares your live location with all your Safe Circle members and optionally calls emergency services. |
+| **AI Model Fine-Tuning** | Fine-tune a smaller model on our alert dataset for faster, cheaper, and more accurate classification without relying on OpenAI. |
+| **Offline Mode** | Cache recent alerts locally so users can access safety information even without internet connectivity. |
+| **Admin Dashboard** | Build an admin panel for moderators to manually verify alerts, manage users, and monitor system health. |
+| **Alert Clustering** | Group related alerts about the same event (e.g., multiple reports of the same flood) into a single incident thread. |
+
+---
+
+## ⚠️ Known Limitations & Current Flaws
+
+| Limitation | Details |
+|------------|---------|
+| **No Push Notifications** | Users must open the app to see new alerts. There's no way to get notified in real-time when a critical alert appears near you. |
+| **AI Costs** | Every alert processed by GPT-4o-mini costs money. At scale, processing thousands of alerts per day could become expensive. The fallback system helps but provides lower quality results. |
+| **Location Accuracy** | Browser geolocation can be inaccurate (especially on desktop). The Haversine formula assumes a spherical Earth, which introduces minor distance errors. |
+| **Limited Fallback Intelligence** | The rule-based FallbackEngine uses simple keyword matching. It can miscategorize alerts that use unusual language or miss nuanced threats that AI would catch. |
+| **No Real-Time Streaming** | Alerts are fetched on a 30-minute cron schedule, not streamed in real-time. A critical alert could take up to 30 minutes to appear. |
+| **Single Region Focus** | The fallback location database only covers ~25 cities. Alerts mentioning smaller towns or rural areas won't get location-tagged by the fallback system. |
+| **No Rate Limiting** | The API doesn't have rate limiting on endpoints. A malicious user could spam the chatbot or refresh endpoint. |
+| **PhishTank Rate Limits** | PhishTank has strict API rate limits. During high traffic, phishing database searches may fail or return cached (stale) data. |
+| **No Email Verification** | Users can register with any email without verification. There's no password reset flow either. |
+| **WebSocket Scalability** | Socket.io runs on a single server instance. For horizontal scaling, we'd need to add a Redis adapter for cross-instance communication. |
+| **No Data Retention Policy** | Old alerts accumulate in the database indefinitely. There's no automated cleanup beyond the 3 AM dedup job. The `expires_at` field exists but isn't enforced. |
+| **Chatbot Context Window** | The AI chatbot only remembers the last 10 messages. Long conversations lose earlier context. |
 
 ---
 
