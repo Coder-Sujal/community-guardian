@@ -34,7 +34,7 @@ export default function CircleDetail() {
 
   useEffect(() => {
     fetchCircle(); fetchMessages(); fetchLocations()
-    socketRef.current = io('http://localhost:3001')
+    socketRef.current = io(import.meta.env.VITE_API_URL || 'http://localhost:3001')
     socketRef.current.emit('join-circle', id)
     socketRef.current.on('new-message', (msg: Message) => setMessages(prev => [...prev, msg]))
     socketRef.current.on('location-shared', (loc: LocationShare) => {
