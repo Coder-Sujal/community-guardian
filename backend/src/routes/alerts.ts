@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { supabase } from '../db/database.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
+import { healthMonitor } from '../../server/healthMonitor.js';
 
 const router = Router();
 
@@ -285,9 +286,11 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
       aiConfidence: inc.ai_confidence,
       createdAt: inc.created_at,
       expiresAt: inc.expires_at,
+      processedBy: (inc.ai_processed && inc.ai_confidence != null) ? 'ai' as const : 'fallback' as const,
     }));
 
-    res.json({ alerts, city: cityName });
+    const processingMode = healthMonitor.isAvailable() ? 'ai' : 'fallback';
+    res.json({ alerts, city: cityName, processingMode });
   } catch (error) {
     console.error('Alerts error:', error);
     res.status(500).json({ error: 'Failed to get alerts' });
@@ -324,6 +327,7 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
       aiConfidence: incident.ai_confidence,
       createdAt: incident.created_at,
       expiresAt: incident.expires_at,
+      processedBy: (incident.ai_processed && incident.ai_confidence != null) ? 'ai' as const : 'fallback' as const,
     });
   } catch (error) {
     console.error('Get alert error:', error);

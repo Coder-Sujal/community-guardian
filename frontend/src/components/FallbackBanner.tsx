@@ -1,9 +1,11 @@
-interface FallbackBannerProps {
-  visible?: boolean
-}
+import { useAIHealthStatus } from '../hooks/useAIHealthStatus'
 
-export default function FallbackBanner({ visible = true }: FallbackBannerProps) {
-  if (!visible) return null
+export default function FallbackBanner() {
+  const { status } = useAIHealthStatus()
+
+  const shouldShow = !status.available || status.mode === 'fallback'
+
+  if (!shouldShow) return null
 
   return (
     <div

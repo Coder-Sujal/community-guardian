@@ -11,6 +11,7 @@ import circleRoutes from './routes/circles.js';
 import chatRoutes from './routes/chat.js';
 import alertsRoutes from './routes/alerts.js';
 import phishingRoutes from './routes/phishing.js';
+import healthRoutes from './routes/health.js';
 import { setupSocketHandlers } from './socket.js';
 import { startScheduler } from '../server/scheduler.js';
 
@@ -42,6 +43,7 @@ app.use('/api/circles', circleRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/alerts', alertsRoutes);
 app.use('/api/phishing', phishingRoutes);
+app.use('/api/health', healthRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -10,6 +10,7 @@ export interface Alert {
   sourceUrl?: string
   verified: boolean
   aiConfidence?: number
+  processedBy?: 'ai' | 'fallback'
   createdAt: string
 }
 
@@ -62,6 +63,11 @@ export default function AlertCard({ alert }: { alert: Alert }) {
                 </span>
               ) : (
                 <span className="badge bg-gray-50 text-gray-500 ring-1 ring-gray-200">Unverified</span>
+              )}
+              {alert.processedBy === 'fallback' && (
+                <span className="badge bg-orange-50 text-orange-700 ring-1 ring-orange-200">
+                  ⚙ Rule-based
+                </span>
               )}
             </div>
 

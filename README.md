@@ -1,192 +1,479 @@
-# 🛡️ Community Guardian
+<p align="center">
+  <img src="frontend/public/shield.svg" alt="Community Guardian Logo" width="100" height="100">
+</p>
 
-**A real-time community safety platform that aggregates, verifies, and delivers location-aware security alerts using AI — empowering neighborhoods to stay informed and connected.**
+<h1 align="center">🛡️ Community Guardian</h1>
 
-> Built for the Palo Alto Networks Hackathon — Scenario: Community Safety & Alert System
-
----
-
-## 📌 Problem Statement
-
-Communities lack a centralized, intelligent system to aggregate safety-relevant information from diverse sources (cybersecurity advisories, weather warnings, financial fraud alerts, phishing databases, and local news) and deliver it in a timely, location-aware, and actionable format.
-
-Existing solutions are fragmented: weather apps don't cover cyber threats, news apps don't verify or prioritize by severity, and none provide AI-generated safety checklists or community coordination tools.
-
-**Community Guardian solves this by:**
-- Aggregating alerts from 5+ real-time data sources into a unified feed
-- Using GPT-4o-mini to verify, categorize, extract locations, and generate actionable safety checklists
-- Filtering alerts by user location (100km radius) with severity-based prioritization
-- Enabling "Safe Circles" — neighborhood groups with real-time location sharing and messaging
-- Providing a searchable phishing database powered by PhishTank
-- Falling back gracefully to rule-based heuristics when AI is unavailable
+<p align="center">
+  <strong>AI-Powered Real-Time Community Safety Platform</strong><br>
+  <em>Aggregating, verifying, and delivering location-aware security alerts to keep communities safe</em>
+</p>
 
 ---
 
-## 🎬 Demo & Core Flow
+<div align="center">
 
-### End-to-End Flow: Create → View → Update + Search/Filter
+## 🌐 [✦ LIVE APP — Try It Now ✦](https://community-guardian-2djd.onrender.com)
 
-| Step | Action |
-|------|--------|
-| **Register/Login** | JWT-authenticated account creation with email + password |
-| **Set Location** | Auto-detect via browser geolocation or manual lat/lng entry |
-| **View Feed** | Browse all incidents sorted by severity (HIGH → MEDIUM → LOW) |
-| **Filter/Search** | Filter by category (Crime, Weather, Cyber, Scam, Health) and severity |
-| **View Alert Detail** | See AI-generated safety checklist, immediate action step, source link |
-| **Location Alerts** | Alerts tab shows only incidents within 100km of your location |
-| **Phishing Search** | Search PhishTank's verified phishing URL database with pagination |
-| **Safe Circles** | Create/join groups, send real-time messages, share live location on map |
-| **AI Chatbot** | Ask the Guardian Assistant about safety tips and app features |
+## 🎬 [▶ Watch Our Demo Video on YouTube](https://youtu.be/UtPCHeigZKU)
+
+[![Watch the Demo](https://img.shields.io/badge/YouTube-Watch%20Demo-red?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/UtPCHeigZKU)
+[![Live Demo](https://img.shields.io/badge/Render-Live%20App-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://community-guardian-2djd.onrender.com)
+
+</div>
 
 ---
 
-## ⚙️ Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, React Router v6 |
-| **Backend** | Node.js, Express, TypeScript |
-| **Database** | Supabase (managed PostgreSQL) |
-| **AI** | OpenAI GPT-4o-mini (verification, categorization, checklists, chatbot) |
-| **Real-time** | Socket.io (circle messaging + live location sharing) |
-| **Maps** | Leaflet + React-Leaflet + OpenStreetMap |
-| **Scheduling** | node-cron (30-min fetch cycles, daily cleanup) |
-| **Testing** | Vitest + fast-check (property-based testing) |
-| **Auth** | JWT + bcrypt |
+<p align="center">
+  <img src="https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react" alt="React">
+  <img src="https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Node.js-18+-339933?style=flat-square&logo=node.js" alt="Node.js">
+  <img src="https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=flat-square&logo=supabase" alt="Supabase">
+  <img src="https://img.shields.io/badge/OpenAI-GPT--4o--mini-412991?style=flat-square&logo=openai" alt="OpenAI">
+  <img src="https://img.shields.io/badge/Socket.io-4.8-010101?style=flat-square&logo=socket.io" alt="Socket.io">
+</p>
 
 ---
 
-## 🧠 AI Integration + Fallback
+## 📋 Table of Contents
 
-### AI Capabilities (GPT-4o-mini)
+1. [Problem Statement](#-problem-statement)
+2. [Feature List](#-feature-list)
+3. [AI Implementation](#-ai-implementation--what-we-did)
+4. [When AI is Unavailable](#-when-ai-is-unavailable--our-fallback-system)
+5. [Architecture & Design](#-architecture--design)
+6. [Database Design](#-database-design)
+7. [Tech Stack](#-tech-stack)
+8. [API Endpoints](#-api-endpoints)
+9. [Data Sources](#-data-sources)
+10. [Testing](#-testing)
+11. [Getting Started](#-getting-started)
 
-The AI pipeline processes every incoming alert through a structured prompt that returns JSON:
+---
+
+## 🎯 Problem Statement
+
+Communities today have **no single place** to see all the safety threats around them. Information is scattered everywhere:
+
+- **Weather warnings** are on one app
+- **Cyber threats** are on another website
+- **Scam alerts** come through random forwards
+- **Crime reports** are buried in news articles
+- **Health advisories** are on government portals
+
+This creates real problems:
+
+| Problem | What Happens |
+|---------|-------------|
+| **Information Silos** | You need 5+ different apps/websites just to stay informed. Nothing is connected. |
+| **No Verification** | You can't tell if an alert is real or misinformation without doing your own research. |
+| **No Prioritization** | All alerts look the same — you don't know which ones need immediate action. |
+| **No Actionable Guidance** | Alerts tell you *what* happened but never *what to do* about it. |
+| **No Community Coordination** | Neighbors can't easily share real-time safety info during emergencies. |
+
+**Community Guardian solves all of this.** We built a single platform that pulls alerts from 5+ real-time sources, uses AI to verify and prioritize them, generates actionable safety checklists, and lets neighborhoods coordinate during emergencies.
+
+---
+
+## ✨ Feature List
+
+### 1. 📰 Safety Feed (Main Dashboard)
+All safety incidents from every source in one place. Alerts are sorted by severity (HIGH → MEDIUM → LOW), filterable by category (Crime, Weather, Health, Scam, Cyber, Other), and each shows an AI verification badge with confidence percentage.
+
+### 2. 📍 Location-Based Alerts
+The app detects your location (with permission) and shows only alerts near you. Uses the **Haversine formula** to calculate distances — alerts within 100km of your location are highlighted. You can toggle "Near Me" on/off.
+
+### 3. ⚡ AI-Generated Safety Checklists
+Every alert comes with practical, actionable guidance generated by AI:
+- **One immediate action** — the most urgent thing to do right now
+- **3-4 safety steps** — a numbered checklist specific to the threat
+
+Example for a UPI Scam Alert:
+```
+⚡ Do right now: Do not click any SMS link claiming to be from your bank.
+
+Safety checklist:
+1. Call 1930 (National Cybercrime Helpline) and report the SMS
+2. Change your UPI PIN immediately from the official bank app
+3. Check your last 10 transactions for unauthorised payments
+4. Block the sender number from your telecom provider's app
+```
+
+### 4. 🎣 Phishing Database
+A searchable database of verified phishing URLs powered by PhishTank. Search by URL or target organization, see if phishing sites are still active, and browse thousands of entries with pagination.
+
+### 5. 👥 Safe Circles (Neighborhood Groups)
+Private groups for emergency coordination:
+- Create a circle → get a **6-character invite code** to share
+- **Real-time messaging** powered by Socket.io
+- **Live location sharing** on an interactive map (Leaflet + OpenStreetMap) for 15, 30, or 60 minutes
+- Locations auto-expire for privacy
+- Circle owner marked with 👑
+
+### 6. 🤖 AI Chatbot
+A floating chat assistant on every page. Ask it safety questions, get tips, or ask for help navigating the app. Maintains conversation history and shows a typing indicator while generating responses.
+
+### 7. 👤 User Authentication & Profile
+JWT-based auth with bcrypt password hashing. Users can set their home location for personalized alert filtering, detect current location with one click, and sessions persist for 7 days.
+
+### 8. 🔄 Automated Data Pipeline
+Runs continuously in the background:
+- **Every 30 minutes**: Fetches new alerts from all 5+ sources
+- **Daily at 3 AM**: Cleans up duplicate alerts
+- **Smart deduplication**: SHA-256 content hashing for exact matches + Jaccard similarity (≥50%) for semantic duplicates
+- **Graceful failure**: If one source fails, the others keep working
+
+---
+
+## 🧠 AI Implementation — What We Did
+
+We use **OpenAI GPT-4o-mini** across the platform. Here's exactly what the AI does and how we built it:
+
+### The AI Pipeline
+
+Every alert that enters the system goes through this pipeline:
 
 ```
-Raw Alert → AI Filter → { verified, confidence, category, severity, summary, actionStep, steps[], location }
+Raw Alert (title + description + source)
+        │
+        ▼
+   GPT-4o-mini analyzes it
+        │
+        ▼
+   Returns structured JSON:
+   ├── verified: true/false
+   ├── confidence: 0-1
+   ├── category: CRIME / WEATHER / HEALTH / SCAM / CYBER / OTHER
+   ├── severity: LOW / MEDIUM / HIGH
+   ├── actionStep: "Do this right now"
+   ├── steps: ["Step 1", "Step 2", "Step 3", "Step 4"]
+   └── location: { name, lat, lng } or null
 ```
 
-| AI Feature | Description |
-|-----------|-------------|
-| **Verification** | Determines if an alert is legitimate (boolean + confidence 0–1) |
-| **Categorization** | Classifies into CRIME, WEATHER, HEALTH, SCAM, CYBER, or OTHER |
-| **Severity Assessment** | Assigns LOW, MEDIUM, or HIGH based on threat analysis |
-| **Location Extraction** | Extracts city/region names and maps to lat/lng coordinates |
-| **Safety Checklists** | Generates 3–4 actionable safety steps specific to the threat type |
-| **Immediate Action** | Produces a single urgent action recommendation (max 80 chars) |
-| **Chatbot** | Conversational assistant with context history for safety guidance |
+### What the AI Does (6 Tasks)
 
-### Rule-Based Fallback (When AI is Unavailable)
+| # | AI Task | What It Does | Example |
+|---|---------|-------------|---------|
+| 1 | **Alert Verification** | Checks if an alert is a real safety concern or noise/spam | A CVE from CISA → `verified: true, confidence: 0.95` |
+| 2 | **Categorization** | Classifies into one of 6 categories automatically | "Ransomware attack on hospital" → `CYBER` |
+| 3 | **Severity Assessment** | Rates how dangerous/urgent the alert is | "Critical RCE vulnerability" → `HIGH` |
+| 4 | **Location Extraction** | Finds city/region names in text and maps to coordinates | "Flooding in Mumbai" → `{ lat: 19.07, lng: 72.87 }` |
+| 5 | **Safety Checklist Generation** | Creates actionable steps specific to the threat type | Scam alert → "Never share OTPs", "Report to 1930" |
+| 6 | **Chatbot Conversations** | Answers safety questions and helps navigate the app | "How do I create a Safe Circle?" → step-by-step guide |
 
-When the OpenAI API key is missing or the API fails, the system degrades gracefully:
+### AI Configuration Details
 
-| Fallback Feature | Implementation |
-|-----------------|----------------|
-| **Category Guessing** | Regex-based keyword matching (e.g., `/theft\|robbery\|assault/` → CRIME) |
-| **Severity Guessing** | Keyword analysis for threat level indicators |
-| **Safety Checklists** | Pre-built checklist templates per category (6 categories × 4 steps each) |
-| **Location Extraction** | Database of 100+ known cities with coordinates (Haversine distance matching) |
-| **UI Indicator** | `FallbackBanner` component warns users: "AI verification unavailable — exercise extra caution" |
-
-The fallback ensures the app remains fully functional without any AI dependency.
+| Setting | Value | Why |
+|---------|-------|-----|
+| Model | GPT-4o-mini | Fast, cost-effective, good enough for classification |
+| Temperature | 0.3 | Low randomness = consistent, factual outputs |
+| Max Tokens | 800 | Enough for structured JSON response per alert |
+| Response Format | `{ type: 'json_object' }` | Forces structured JSON output, no free-text |
+| Processing | Asynchronous background | Alerts are enriched in the background, never blocks the user |
 
 ---
 
-## 🏗️ High-Level Architecture
+## 🔄 When AI is Unavailable — Our Fallback System
+
+**The app never breaks, even if OpenAI goes completely down.** This is one of the most important parts of our system. We built a 3-layer fallback system:
+
+### Layer 1: Health Monitor (Detects AI is Down)
+
+A `HealthMonitor` service runs in the background:
+- Pings OpenAI every **60 seconds** with a lightweight `models.list()` call
+- Uses a **5-second timeout** — if no response in 5 seconds, AI is marked unavailable
+- Tracks consecutive failures and automatically retries
+- Exposes a `/health/ai` endpoint so the frontend knows the current status in real-time
+
+### Layer 2: FallbackEngine (Rule-Based Processing)
+
+When AI is down, the `FallbackEngine` takes over. It does the **same job as the AI** but using keyword-based rules:
+
+| Function | How It Works Without AI |
+|----------|------------------------|
+| **Category Classification** | Scans alert text for keywords. "hack", "breach", "malware" → `CYBER`. "flood", "storm" → `WEATHER`. Category with most keyword matches wins. |
+| **Severity Assessment** | Looks for severity keywords. "critical", "emergency", "fatal" → `HIGH`. "warning", "advisory" → `MEDIUM`. Trusted sources (CISA, RBI) get a severity boost. |
+| **Safety Checklists** | Pre-built checklist templates for each category. Example: SCAM alerts always get "Never share OTPs", "Report to 1930", etc. |
+| **Location Extraction** | Matches city names from a database of 25+ cities (Indian + international) using word-boundary regex matching. |
+
+### Layer 3: Ultimate Fallback (Last Resort)
+
+If even the FallbackEngine fails (e.g., corrupted config file), hardcoded defaults kick in:
+- Category: `OTHER`
+- Severity: `MEDIUM`
+- Checklist: Generic safety advice ("Monitor official news sources", "Follow emergency services instructions")
+
+### The Complete Fallback Flow
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        FRONTEND (React + Vite)                  │
-│  ┌──────┐ ┌──────┐ ┌────────┐ ┌────────┐ ┌─────────┐ ┌──────┐│
-│  │ Feed │ │Alerts│ │Phishing│ │Circles │ │ Profile │ │ Chat ││
-│  └──┬───┘ └──┬───┘ └───┬────┘ └───┬────┘ └────┬────┘ └──┬───┘│
-│     │        │         │          │            │         │     │
-│     └────────┴─────────┴────┬─────┴────────────┴─────────┘     │
-│                             │ Axios + Socket.io-client          │
-└─────────────────────────────┼───────────────────────────────────┘
-                              │ REST API + WebSocket
-┌─────────────────────────────┼───────────────────────────────────┐
-│                        BACKEND (Express + TS)                   │
-│  ┌──────────────────────────┴──────────────────────────────┐    │
-│  │                    API Routes                           │    │
-│  │  /auth  /feed  /alerts  /phishing  /circles  /chat     │    │
-│  └──────────────────────────┬──────────────────────────────┘    │
-│                             │                                   │
-│  ┌──────────────┐  ┌───────┴────────┐  ┌──────────────────┐    │
-│  │  Scheduler   │  │  AI Filter     │  │  Socket.io       │    │
-│  │  (node-cron) │  │  (GPT-4o-mini) │  │  (real-time)     │    │
-│  │  30min fetch │  │  + Fallback    │  │  messages + loc  │    │
-│  └──────┬───────┘  └───────┬────────┘  └──────────────────┘    │
-│         │                  │                                    │
-│  ┌──────┴──────────────────┴───────────────────────────────┐    │
-│  │              Data Fetchers                              │    │
-│  │  CISA KEV │ RBI RSS │ PhishTank │ RSS News │ Weather    │    │
-│  └──────────────────────────┬──────────────────────────────┘    │
-│                             │                                   │
-│  ┌──────────────────────────┴──────────────────────────────┐    │
-│  │           Deduplication Engine                          │    │
-│  │  Content Hash (SHA-256) + Semantic Similarity (Jaccard) │    │
-│  │  + Geographic Proximity (Haversine ≤ 150km)             │    │
-│  └──────────────────────────┬──────────────────────────────┘    │
-└─────────────────────────────┼───────────────────────────────────┘
-                              │
-                    ┌─────────┴─────────┐
-                    │  Supabase (PgSQL) │
-                    │  users, incidents, │
-                    │  circles, messages,│
-                    │  location_shares   │
-                    └───────────────────┘
+Alert comes in
+      │
+      ▼
+Is OpenAI available? ──── YES ──→ Use GPT-4o-mini (full AI processing)
+      │
+      NO
+      │
+      ▼
+Use FallbackEngine ──── SUCCESS ──→ Return rule-based result
+      │
+      FAIL
+      │
+      ▼
+Use Ultimate Fallback ──→ Return generic safe defaults
 ```
+
+### Hot-Reloadable Rules
+
+The fallback rules live in a `fallback-rules.json` config file. The `RuleConfiguration` class watches this file for changes and **hot-reloads automatically** — you can add new keywords, update checklists, or add new city locations by just editing the JSON file. No server restart needed.
+
+### How the User Knows AI is Down
+
+The frontend polls `/health/ai` every 30 seconds. When AI is unavailable:
+
+- A **yellow warning banner** appears at the top: *"⚠️ AI verification unavailable — Alerts are still collected from official sources but haven't been AI-verified. Exercise extra caution."*
+- Alerts show `⚠ Unverified` badge instead of `✓ Verified`
+- Alerts show `⚙ Rule-based` badge to indicate fallback processing
+- No confidence percentage is displayed (since there's no AI confidence score)
+
+---
+
+## 🏗️ Architecture & Design
+
+### System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND                                        │
+│                         React 18 + Vite + TypeScript                        │
+│  ┌─────────┐ ┌─────────┐ ┌──────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐  │
+│  │  Feed   │ │ Alerts  │ │ Phishing │ │ Circles │ │ Profile │ │ Chatbot │  │
+│  │  Page   │ │  Page   │ │   Page   │ │  Page   │ │  Page   │ │Component│  │
+│  └────┬────┘ └────┬────┘ └────┬─────┘ └────┬────┘ └────┬────┘ └────┬────┘  │
+│       └───────────┴───────────┴─────┬──────┴───────────┴───────────┘        │
+│                                     │                                        │
+│                          ┌──────────┴──────────┐                            │
+│                          │   Axios + Socket.io  │                            │
+│                          └──────────┬──────────┘                            │
+└─────────────────────────────────────┼────────────────────────────────────────┘
+                                      │
+                            REST API + WebSocket
+                                      │
+┌─────────────────────────────────────┼────────────────────────────────────────┐
+│                              BACKEND                                         │
+│                      Node.js + Express + TypeScript                         │
+│                                     │                                        │
+│  ┌──────────────────────────────────┴───────────────────────────────────┐   │
+│  │                         API ROUTES                                    │   │
+│  │  /api/auth  /api/feed  /api/alerts  /api/phishing  /api/circles     │   │
+│  │  /api/chat  /health/ai                                               │   │
+│  └──────────────────────────────────┬───────────────────────────────────┘   │
+│                                     │                                        │
+│  ┌──────────────┬───────────────────┼───────────────────┬──────────────┐    │
+│  ▼              ▼                   ▼                   ▼              ▼    │
+│ ┌────────┐ ┌─────────┐      ┌──────────────┐    ┌──────────┐ ┌──────────┐  │
+│ │Scheduler│ │Socket.io│      │  AI Filter   │    │   Auth   │ │  Dedup   │  │
+│ │(Cron)  │ │ Server  │      │ (GPT-4o-mini)│    │Middleware│ │  Engine  │  │
+│ │30m/24h │ │         │      │ + Fallback   │    │  (JWT)   │ │(Jaccard) │  │
+│ └───┬────┘ └─────────┘      └──────┬───────┘    └──────────┘ └──────────┘  │
+│     │                               │                                       │
+│     │                        ┌──────┴───────┐                               │
+│     │                        │Health Monitor│                               │
+│     │                        │(60s polling) │                               │
+│     │                        └──────┬───────┘                               │
+│     │                        ┌──────┴───────┐                               │
+│     │                        │  Fallback    │                               │
+│     │                        │  Engine      │                               │
+│     │                        │(Rule-based)  │                               │
+│     │                        └──────────────┘                               │
+│     ▼                                                                       │
+│ ┌───────────────────────────────────────────────────────────────────────┐  │
+│ │                        DATA FETCHERS                                   │  │
+│ │  ┌──────┐ ┌──────┐ ┌──────────┐ ┌──────────┐ ┌─────────────────────┐  │  │
+│ │  │ CISA │ │ RBI  │ │PhishTank │ │ Weather  │ │     RSS News        │  │  │
+│ │  │ KEV  │ │ RSS  │ │   API    │ │Open-Meteo│ │ (10 feeds)          │  │  │
+│ │  └──────┘ └──────┘ └──────────┘ └──────────┘ └─────────────────────┘  │  │
+│ └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────┬────────────────────────────────────────┘
+                                      │
+                                      ▼
+                         ┌────────────────────────┐
+                         │   SUPABASE (PostgreSQL) │
+                         │  • users                │
+                         │  • incidents            │
+                         │  • circles              │
+                         │  • circle_members       │
+                         │  • messages             │
+                         │  • location_shares      │
+                         └─────────────────────────┘
+```
+
+### Data Pipeline Flow
+
+```
+External Sources              Processing Pipeline              Database
+────────────────              ───────────────────              ────────
+
+┌──────────┐
+│ CISA KEV │──┐
+└──────────┘  │
+┌──────────┐  │   ┌─────────────┐   ┌─────────────┐   ┌──────────┐
+│ RBI RSS  │──┼──▶│  Fetchers   │──▶│  Normalize  │──▶│ Supabase │
+└──────────┘  │   │  (5 types)  │   │  + Dedup    │   │          │
+┌──────────┐  │   └─────────────┘   └──────┬──────┘   └──────────┘
+│PhishTank │──┤                            │
+└──────────┘  │                            ▼
+┌──────────┐  │                     ┌─────────────┐
+│Open-Meteo│──┤                     │  AI Filter  │
+└──────────┘  │                     │ (GPT-4o-mini│
+┌──────────┐  │                     │ + Fallback) │
+│ RSS News │──┘                     └─────────────┘
+│(10 feeds)│
+└──────────┘
+```
+
+### Deduplication Strategy
+
+We use a two-layer deduplication approach to prevent duplicate alerts:
+
+1. **Exact Match (SHA-256 Hash)**: Each alert gets a content hash based on `source + sourceUrl` (or `source + normalized title`). If the hash already exists in the database, the alert is skipped.
+
+2. **Semantic Match (Jaccard Similarity)**: For alerts that are rephrased versions of the same event, we compare key terms using Jaccard similarity. If similarity ≥ 50%, or if the same event type is detected within 150km, the alert is considered a duplicate.
+
+---
+
+## 🗄️ Database Design
+
+We use **Supabase (managed PostgreSQL)** with the following tables:
+
+```
+┌──────────────────┐       ┌──────────────────┐
+│      users       │       │    incidents      │
+├──────────────────┤       ├──────────────────┤
+│ id (uuid, PK)    │       │ id (uuid, PK)    │
+│ email            │       │ title            │
+│ password_hash    │       │ description      │
+│ name             │       │ category         │
+│ location_lat     │       │ severity         │
+│ location_lng     │       │ source           │
+│ created_at       │       │ source_url       │
+└──────────────────┘       │ verified         │
+                           │ ai_confidence    │
+┌──────────────────┐       │ ai_processed     │
+│     circles      │       │ action_step      │
+├──────────────────┤       │ steps (JSON)     │
+│ id (uuid, PK)    │       │ location_lat     │
+│ name             │       │ location_lng     │
+│ invite_code (6ch)│       │ content_hash     │
+│ owner_id (FK)    │       │ expires_at       │
+│ created_at       │       │ created_at       │
+└──────────────────┘       └──────────────────┘
+
+┌──────────────────┐       ┌──────────────────┐
+│  circle_members  │       │    messages       │
+├──────────────────┤       ├──────────────────┤
+│ id (uuid, PK)    │       │ id (uuid, PK)    │
+│ circle_id (FK)   │       │ circle_id (FK)   │
+│ user_id (FK)     │       │ user_id (FK)     │
+│ joined_at        │       │ content          │
+└──────────────────┘       │ created_at       │
+                           └──────────────────┘
+┌──────────────────┐
+│ location_shares  │
+├──────────────────┤
+│ id (uuid, PK)    │
+│ circle_id (FK)   │
+│ user_id (FK)     │
+│ lat              │
+│ lng              │
+│ expires_at       │
+│ created_at       │
+└──────────────────┘
+```
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+| Technology | Purpose |
+|------------|---------|
+| React 18.3 | UI framework with hooks |
+| TypeScript 5.6 | Type safety |
+| Vite 5.4 | Fast build tool & dev server |
+| Tailwind CSS 3.4 | Utility-first styling |
+| React Router 6 | Client-side routing |
+| Axios | HTTP client |
+| Socket.io Client | Real-time WebSocket |
+| Leaflet + React-Leaflet | Interactive maps |
+
+### Backend
+| Technology | Purpose |
+|------------|---------|
+| Node.js 18+ | Runtime |
+| Express 4.21 | Web framework |
+| TypeScript 5.6 | Type safety |
+| Socket.io 4.8 | Real-time communication |
+| node-cron | Scheduled tasks |
+| OpenAI SDK 4.67 | GPT-4o-mini integration |
+| bcryptjs | Password hashing |
+| jsonwebtoken | JWT auth |
+| xml2js | RSS/XML parsing |
+
+### Database & Testing
+| Technology | Purpose |
+|------------|---------|
+| Supabase | Managed PostgreSQL |
+| Vitest | Unit testing |
+| fast-check | Property-based testing |
+
+---
+
+## 📡 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register a new user |
+| POST | `/api/auth/login` | Login and get JWT token |
+| GET | `/api/feed` | Get all alerts (supports `?locationBased=true&category=CYBER&severity=HIGH`) |
+| POST | `/api/feed/refresh` | Trigger manual alert refresh |
+| GET | `/api/feed/:id` | Get single alert details |
+| GET | `/api/alerts` | Get location-based alerts |
+| GET | `/api/alerts/:id` | Get alert detail with checklist |
+| GET | `/api/phishing` | Search phishing database |
+| GET | `/api/circles` | List user's circles |
+| POST | `/api/circles` | Create a new circle |
+| POST | `/api/circles/join` | Join circle with invite code |
+| GET | `/api/circles/:id` | Get circle details + messages |
+| POST | `/api/chat` | Send message to AI chatbot |
+| GET | `/health/ai` | Check AI service status |
+| PUT | `/api/profile` | Update user profile/location |
 
 ---
 
 ## 📊 Data Sources
 
-All data is fetched from public APIs — **no scraping of live sites**.
+We pull real-time data from 5+ sources:
 
-| Source | Type | API Key Required | Data |
-|--------|------|:---:|------|
-| [CISA KEV Catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) | Cybersecurity | ❌ | Known exploited vulnerabilities |
-| [RBI RSS Feed](https://www.rbi.org.in/scripts/rss.aspx) | Financial | ❌ | Reserve Bank of India advisories |
-| [PhishTank](https://www.phishtank.com/) | Phishing | ❌ | Verified phishing URLs |
-| [Open-Meteo](https://open-meteo.com/) | Weather | ❌ | Per-user weather alerts (global) |
-| RSS News Feeds (10 sources) | News | ❌ | NDTV, Times of India, The Hindu, Indian Express, Hindustan Times, The Hacker News, BleepingComputer, Krebs on Security, BBC, Reuters |
-
-### Synthetic Seed Data
-
-A seed script (`npm run seed`) populates the database with sample alerts across all categories (Weather, Cyber, Scam, Crime, Health, News) including location-specific data for Bengaluru. This ensures the app is demo-ready without requiring live API calls.
+| Source | What It Provides | Update Frequency |
+|--------|-----------------|-----------------|
+| **CISA KEV** | Known Exploited Vulnerabilities catalog from US cybersecurity agency | Every 30 min |
+| **RBI RSS** | Financial fraud and banking alerts from Reserve Bank of India | Every 30 min |
+| **PhishTank** | Verified phishing URLs database (thousands of entries) | Cached 1 hour |
+| **Open-Meteo** | Weather warnings and severe weather alerts | Every 30 min |
+| **RSS News** | 10 security/safety news feeds (The Hacker News, Krebs on Security, etc.) | Every 30 min |
 
 ---
 
-## 🔐 Security
+## 🧪 Testing
 
-| Measure | Implementation |
-|---------|---------------|
-| **API Keys** | Stored in `.env`, never committed. `.env.example` provided. |
-| **Authentication** | JWT tokens (7-day expiry) with bcrypt password hashing (10 rounds) |
-| **Authorization** | Middleware-protected routes; circle membership verified before access |
-| **CORS** | Configured to allow only the frontend origin |
-| **Input Validation** | Required field checks, type validation, coordinate range validation |
-| **Location Privacy** | Location sharing is opt-in with configurable expiration (15/30/60 min) |
-| **No Scraping** | All data from public APIs with proper User-Agent headers |
+We use **Vitest** for unit tests and **fast-check** for property-based testing:
 
----
+- **AI Filter Tests**: Verify that the AI pipeline correctly processes alerts and falls back gracefully
+- **Normalization Tests**: Ensure deduplication logic works correctly (Jaccard similarity, content hashing)
+- **Property-Based Tests**: Use fast-check to generate random inputs and verify invariants hold (e.g., severity is always valid, category is always one of 6 values)
 
-## ✅ Testing
-
-The project uses Vitest with fast-check for property-based testing.
-
-**Test file:** `backend/server/normalize.test.ts`
-
-| Test | Type | What It Validates |
-|------|------|-------------------|
-| Semantic deduplication (property-based) | PBT | Alerts with same event type + overlapping geography (≤150km) are deduplicated |
-| Avalanche alerts — Idaho regions | Unit | Concrete case: two avalanche alerts ~70km apart are detected as duplicates |
-| Flood warnings — adjacent IL counties | Unit | Concrete case: Cook County + DuPage County flood warnings deduplicated |
-| Winter storm — California mountains | Edge | Alerts with same `source_url` but different text are hash-deduplicated |
-
+Run tests:
 ```bash
-# Run tests
 cd backend
 npm test
 ```
@@ -197,167 +484,56 @@ npm test
 
 ### Prerequisites
 - Node.js 18+
-- A [Supabase](https://supabase.com) project (free tier works)
-- OpenAI API key (optional — app works without it via fallback)
+- A Supabase project (free tier works)
+- OpenAI API key (optional — app works without it using fallback)
 
 ### Setup
 
+1. **Clone the repo**
 ```bash
-# 1. Clone the repo
-git clone <repo-url>
+git clone https://github.com/your-username/community-guardian.git
 cd community-guardian
+```
 
-# 2. Backend setup
+2. **Backend setup**
+```bash
 cd backend
-cp .env.example .env
-# Edit .env with your Supabase URL, service key, and optionally OpenAI key
 npm install
+cp .env.example .env
+# Edit .env with your Supabase and OpenAI keys
+```
 
-# 3. Database setup — run the SQL from backend/src/db/setup.ts in Supabase SQL Editor
-# Then run migrations:
-#   backend/migrations/add_alerts_columns.sql
-#   backend/migrations/add_news_columns.sql
+3. **Frontend setup**
+```bash
+cd frontend
+npm install
+```
 
-# 4. Seed sample data
-npm run seed
-
-# 5. Start backend
+4. **Run the app**
+```bash
+# Terminal 1 - Backend
+cd backend
 npm run dev
 
-# 6. Frontend setup (new terminal)
-cd ../frontend
-npm install
+# Terminal 2 - Frontend
+cd frontend
 npm run dev
 ```
 
-The frontend runs on `http://localhost:5173` and the backend on `http://localhost:3001`.
+5. Open `http://localhost:5173` in your browser
 
 ### Environment Variables
 
 ```env
-PORT=3001
-JWT_SECRET=your-super-secret-jwt-key-change-this
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_KEY=your-service-role-key
-OPENAI_API_KEY=sk-your-openai-api-key        # Optional
-NEWS_API_KEY=                                  # Optional
-FRONTEND_URL=http://localhost:5173
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_anon_key
+OPENAI_API_KEY=your_openai_key  # Optional - fallback works without it
+JWT_SECRET=your_jwt_secret
+PORT=3000
 ```
 
 ---
 
-## 🗄️ Database Schema
-
-```sql
-users          (id, email, password_hash, display_name, location_lat, location_lng)
-incidents      (id, external_id, title, description, category, severity, source,
-                source_url, article_url, image_url, location_lat, location_lng,
-                location_radius, verified, ai_processed, ai_confidence,
-                action_step, steps, content_hash, created_at, expires_at)
-circles        (id, name, invite_code, owner_id)
-circle_members (circle_id, user_id, joined_at)
-messages       (id, circle_id, user_id, content, created_at)
-location_shares(id, circle_id, user_id, lat, lng, expires_at)
-```
-
----
-
-## ⚖️ Responsible AI
-
-| Consideration | How We Address It |
-|--------------|-------------------|
-| **Transparency** | Every alert shows whether it's AI-verified or unverified, with confidence percentage |
-| **Graceful Degradation** | Full rule-based fallback when AI is unavailable — the app never breaks |
-| **User Warning** | `FallbackBanner` component explicitly warns users when AI verification is offline |
-| **No Hallucination Risk** | AI processes structured data (titles + descriptions) — it doesn't generate alerts from scratch |
-| **Confidence Scores** | AI confidence (0–1) is displayed to users so they can judge reliability |
-| **Human Override** | Users can see the original source link and verify information independently |
-| **Data Privacy** | Location sharing is opt-in, time-limited, and user-controlled |
-| **No PII in AI Calls** | Only alert titles/descriptions are sent to OpenAI — no user data |
-| **Synthetic Data** | Seed data is fully synthetic; no real user data is used |
-
----
-
-## 🔮 Future Enhancements
-
-| Enhancement | Description |
-|------------|-------------|
-| **Push Notifications** | Web push / mobile notifications for high-severity alerts in user's area |
-| **Multi-language Support** | Translate alerts into regional languages (Hindi, Tamil, etc.) |
-| **Incident Reporting** | Allow users to submit community-sourced incidents with photo evidence |
-| **Alert Upvote/Downvote** | Community validation to complement AI verification |
-| **Offline Mode** | Service worker + IndexedDB for cached alerts when offline |
-| **SMS Alerts** | Twilio integration for critical alerts to users without the app open |
-| **Admin Dashboard** | Moderation panel for reviewing flagged content and managing users |
-| **Historical Analytics** | Trend analysis and heatmaps showing incident patterns over time |
-| **Integration with Emergency Services** | Direct 911/112 calling with pre-filled incident context |
-| **Fine-tuned AI Model** | Train a domain-specific model on safety data for better categorization |
-
----
-
-## ⚠️ Known Limitations
-
-| Limitation | Detail |
-|-----------|--------|
-| **PhishTank Rate Limits** | Free tier has aggressive rate limiting; mitigated with caching + exponential backoff |
-| **Weather Alerts Scope** | Open-Meteo provides weather codes, not official NWS-style alert text |
-| **Location Accuracy** | City-level extraction from text is approximate; relies on a known-cities database |
-| **No Email Verification** | Registration doesn't verify email addresses |
-| **Single Region Optimization** | Location matching is optimized for India + major global cities; smaller towns may not be recognized |
-| **No Rate Limiting on API** | Backend endpoints lack request rate limiting (should add express-rate-limit) |
-| **No Pagination on Feed** | Feed loads top 50 results; infinite scroll not yet implemented |
-
----
-
-## 🧩 Design Tradeoffs
-
-| Decision | Tradeoff | Rationale |
-|----------|----------|-----------|
-| **Supabase over raw PostgreSQL** | Vendor lock-in vs. speed | Supabase provides auth, real-time, and hosting out of the box — ideal for a hackathon prototype |
-| **GPT-4o-mini over GPT-4** | Accuracy vs. cost/speed | 4o-mini is 10x cheaper and fast enough for alert categorization; structured JSON output keeps it reliable |
-| **Jaccard Similarity for Dedup** | Simplicity vs. precision | Lightweight, no ML model needed; combined with event-type + geo-proximity it catches 90%+ of duplicates |
-| **Socket.io over SSE** | Complexity vs. bidirectionality | Circles need two-way communication (messages + location); SSE would only handle server→client |
-| **Cron-based Fetching over Webhooks** | Polling overhead vs. reliability | Most data sources don't offer webhooks; 30-min polling is a pragmatic choice |
-| **In-memory PhishTank Cache** | Memory usage vs. latency | Avoids repeated API calls; 1-hour TTL keeps data fresh enough |
-
----
-
-## 📁 Project Structure
-
-```
-├── backend/
-│   ├── server/
-│   │   ├── fetchers/          # Data source fetchers (CISA, RBI, PhishTank, RSS, Weather)
-│   │   ├── aiFilter.ts        # AI verification + fallback logic
-│   │   ├── normalize.ts       # Deduplication engine (hash + semantic)
-│   │   ├── normalize.test.ts  # Property-based tests
-│   │   ├── scheduler.ts       # Cron job orchestrator
-│   │   └── seed.ts            # Sample data seeder
-│   ├── src/
-│   │   ├── db/                # Supabase client + schema setup
-│   │   ├── middleware/        # JWT auth middleware
-│   │   ├── routes/            # API routes (auth, feed, alerts, circles, chat, phishing)
-│   │   ├── services/          # AI verification + data fetcher services
-│   │   ├── socket.ts          # Socket.io event handlers
-│   │   └── index.ts           # Express server entry point
-│   └── migrations/            # SQL migration files
-├── frontend/
-│   ├── src/
-│   │   ├── components/        # AlertCard, Chatbot, FallbackBanner, Layout, DigestFeed
-│   │   ├── context/           # AuthContext (JWT state management)
-│   │   ├── hooks/             # useLocationAlerts (geolocation + alert fetching)
-│   │   ├── lib/               # Axios API client
-│   │   └── pages/             # Feed, Alerts, Phishing, Circles, Profile, Login, Register
-│   └── index.html
-└── README.md
-```
-
----
-
-## 👤 Author
-
-Built with ☕ and curiosity.
-
----
-
-*This project uses synthetic data only. No real user data is collected or stored. API keys are managed via environment variables and never committed to version control.*
+<p align="center">
+  Built with ❤️ for community safety
+</p>

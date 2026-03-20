@@ -1,13 +1,18 @@
 /**
  * AI Filter - OpenAI API integration for alert verification, categorization, safety checklists, and location extraction
- * Falls back gracefully when API is unavailable
+ * Falls back gracefully to rule-based FallbackEngine when API is unavailable
  */
 import OpenAI from 'openai';
 import { supabase } from './supabaseClient.js';
+import { healthMonitor } from './healthMonitor.js';
+import { FallbackEngine } from './fallbackEngine.js';
+import type { ProcessedAlert } from './fallbackEngine.js';
 
 const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null;
+
+const fallbackEngine = new FallbackEngine();
 
 export interface RawAlert {
   title: string;
@@ -26,28 +31,64 @@ export interface FilteredAlert extends RawAlert {
   actionStep?: string;
   steps?: string[];
   extractedLocation?: { lat: number; lng: number; locationName?: string };
+  processedBy: 'ai' | 'fallback';
 }
 
 /**
- * Filter and categorize an alert using OpenAI
+ * Map a FallbackEngine ProcessedAlert to a FilteredAlert
+ */
+function mapProcessedToFiltered(alert: RawAlert, processed: ProcessedAlert): FilteredAlert {
+  return {
+    ...alert,
+    verified: false,
+    aiConfidence: null,
+    category: processed.category,
+    severity: processed.severity,
+    actionStep: processed.checklist.actionStep,
+    steps: processed.checklist.steps,
+    extractedLocation: alert.location ? undefined : processed.location
+      ? { lat: processed.location.lat, lng: processed.location.lng, locationName: processed.location.locationName }
+      : undefined,
+    processedBy: 'fallback',
+  };
+}
+/**
+ * Create an ultimate fallback response when both AI and FallbackEngine fail.
+ * Returns alerts with minimal processing: unverified, OTHER category, MEDIUM severity.
+ */
+function createUltimateFallback(alert: RawAlert): FilteredAlert {
+  return {
+    ...alert,
+    verified: false,
+    aiConfidence: null,
+    category: 'OTHER',
+    severity: 'MEDIUM',
+    actionStep: 'Stay informed and follow guidance from local authorities.',
+    steps: [
+      'Monitor official news sources for updates',
+      'Follow instructions from emergency services',
+      'Share verified information with your community',
+    ],
+    processedBy: 'fallback',
+  };
+}
+
+/**
+ * Filter and categorize an alert using OpenAI, with automatic fallback
+ * to the rule-based FallbackEngine when AI is unavailable.
+ * If both AI and FallbackEngine fail, returns an ultimate fallback with
+ * unverified status, OTHER category, and MEDIUM severity.
  */
 export async function filterAlert(alert: RawAlert): Promise<FilteredAlert> {
-  if (!openai) {
-    // Fallback: return with best-guess category and generated checklist
-    const category = guessCategory(alert.title + ' ' + alert.description);
-    const { actionStep, steps } = generateFallbackChecklist(category, alert.title);
-    const extractedLocation = extractLocationFromText(alert.title + ' ' + alert.description);
-    
-    return {
-      ...alert,
-      verified: false,
-      aiConfidence: null,
-      category,
-      severity: guessSeverity(alert.title + ' ' + alert.description),
-      actionStep,
-      steps,
-      extractedLocation: alert.location ? undefined : extractedLocation,
-    };
+  // Check if AI is available via HealthMonitor and API key
+  if (!openai || !healthMonitor.isAvailable()) {
+    try {
+      const processed = fallbackEngine.processAlert(alert);
+      return mapProcessedToFiltered(alert, processed);
+    } catch (fallbackError) {
+      console.error('FallbackEngine also failed, using ultimate fallback:', fallbackError);
+      return createUltimateFallback(alert);
+    }
   }
 
   try {
@@ -107,23 +148,17 @@ Only return valid JSON.`,
       actionStep: result.actionStep || undefined,
       steps: Array.isArray(result.steps) ? result.steps : undefined,
       extractedLocation,
+      processedBy: 'ai',
     };
   } catch (error) {
-    console.error('AI filter failed:', error);
-    const category = guessCategory(alert.title + ' ' + alert.description);
-    const { actionStep, steps } = generateFallbackChecklist(category, alert.title);
-    const extractedLocation = extractLocationFromText(alert.title + ' ' + alert.description);
-    
-    return {
-      ...alert,
-      verified: false,
-      aiConfidence: null,
-      category,
-      severity: guessSeverity(alert.title + ' ' + alert.description),
-      actionStep,
-      steps,
-      extractedLocation: alert.location ? undefined : extractedLocation,
-    };
+    console.error('AI filter failed, routing to FallbackEngine:', error);
+    try {
+      const processed = fallbackEngine.processAlert(alert);
+      return mapProcessedToFiltered(alert, processed);
+    } catch (fallbackError) {
+      console.error('FallbackEngine also failed, using ultimate fallback:', fallbackError);
+      return createUltimateFallback(alert);
+    }
   }
 }
 
@@ -335,4 +370,4 @@ function extractLocationFromText(text: string): FilteredAlert['extractedLocation
   return undefined;
 }
 
-export { guessCategory, guessSeverity, generateFallbackChecklist, extractLocationFromText };
+export { guessCategory, guessSeverity, generateFallbackChecklist, extractLocationFromText, createUltimateFallback };

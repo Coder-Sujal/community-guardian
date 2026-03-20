@@ -1,0 +1,85 @@
+{
+  "categories": {
+    "CRIME": ["theft", "robbery", "assault", "crime", "police", "arrest", "murder", "shooting", "burglary", "kidnap", "homicide", "stabbing", "arson", "vandalism"],
+    "WEATHER": ["storm", "weather", "flood", "hurricane", "tornado", "rain", "snow", "cyclone", "heatwave", "drought", "lightning", "tsunami", "earthquake"],
+    "HEALTH": ["health", "flu", "virus", "disease", "hospital", "medical", "outbreak", "epidemic", "pandemic", "infection", "vaccine", "contamination"],
+    "SCAM": ["scam", "phishing", "fraud", "fake", "impersonat", "lottery", "prize", "urgent payment", "identity theft", "ponzi"],
+    "CYBER": ["cyber", "hack", "breach", "malware", "ransomware", "vulnerability", "exploit", "ddos", "trojan", "spyware", "zero-day"],
+    "OTHER": []
+  },
+  "severity": {
+    "HIGH": ["critical", "severe", "emergency", "immediate", "danger", "extreme", "fatal", "deadly", "catastrophic", "life-threatening"],
+    "MEDIUM": ["warning", "advisory", "caution", "moderate", "alert", "significant", "notable"],
+    "LOW": ["minor", "low", "routine", "informational", "update", "notice"]
+  },
+  "sourceBoost": {
+    "trustedSources": ["CISA", "RBI", "CDC", "WHO", "NWS", "FBI"]
+  },
+  "checklists": {
+    "CRIME": {
+      "actionStep": "Stay alert and avoid the affected area if possible.",
+      "steps": [
+        "Report any suspicious activity to local police",
+        "Avoid travelling alone in the affected area",
+        "Share your live location with a trusted contact",
+        "Keep emergency contacts readily accessible"
+      ]
+    },
+    "WEATHER": {
+      "actionStep": "Monitor official weather updates and prepare for severe conditions.",
+      "steps": [
+        "Stock up on essential supplies (water, food, batteries)",
+        "Secure loose outdoor objects and close windows",
+        "Identify the nearest shelter or safe room",
+        "Keep a charged phone and portable charger ready"
+      ]
+    },
+    "HEALTH": {
+      "actionStep": "Follow official health advisories and take preventive measures.",
+      "steps": [
+        "Wash hands frequently and maintain hygiene",
+        "Avoid crowded places if an outbreak is reported",
+        "Consult a healthcare professional if symptoms appear",
+        "Keep a basic first-aid kit and essential medications at home"
+      ]
+    },
+    "SCAM": {
+      "actionStep": "Do not respond to suspicious messages or share personal information.",
+      "steps": [
+        "Verify the sender through official channels before acting",
+        "Never share OTPs, passwords, or banking details",
+        "Report the scam to local cyber crime authorities",
+        "Warn family and friends about the scam pattern"
+      ]
+    },
+    "CYBER": {
+      "actionStep": "Disconnect affected systems and change compromised credentials immediately.",
+      "steps": [
+        "Update all passwords for potentially affected accounts",
+        "Run a full antivirus and malware scan",
+        "Enable two-factor authentication where possible",
+        "Report the incident to your IT department or CERT"
+      ]
+    },
+    "OTHER": {
+      "actionStep": "Stay informed and follow guidance from local authorities.",
+      "steps": [
+        "Monitor official news sources for updates",
+        "Follow instructions from emergency services",
+        "Share verified information with your community"
+      ]
+    }
+  },
+  "locations": [
+    { "names": ["bengaluru", "bangalore"], "lat": 12.9716, "lng": 77.5946, "displayName": "Bengaluru" },
+    { "names": ["mumbai", "bombay"], "lat": 19.076, "lng": 72.8777, "displayName": "Mumbai" },
+    { "names": ["delhi", "new delhi"], "lat": 28.6139, "lng": 77.209, "displayName": "Delhi" },
+    { "names": ["chennai", "madras"], "lat": 13.0827, "lng": 80.2707, "displayName": "Chennai" },
+    { "names": ["kolkata", "calcutta"], "lat": 22.5726, "lng": 88.3639, "displayName": "Kolkata" },
+    { "names": ["hyderabad"], "lat": 17.385, "lng": 78.4867, "displayName": "Hyderabad" },
+    { "names": ["pune", "poona"], "lat": 18.5204, "lng": 73.8567, "displayName": "Pune" },
+    { "names": ["ahmedabad"], "lat": 23.0225, "lng": 72.5714, "displayName": "Ahmedabad" },
+    { "names": ["jaipur"], "lat": 26.9124, "lng": 75.7873, "displayName": "Jaipur" },
+    { "names": ["lucknow"], "lat": 26.8467, "lng": 80.9462, "displayName": "Lucknow" }
+  ]
+}

@@ -14,7 +14,6 @@ export default function DigestFeed() {
   const [severity, setSeverity] = useState('ALL')
   const { user } = useAuth()
 
-  const hasUnverifiedAlerts = alerts.some(a => !a.verified)
   const hasFilters = category !== 'ALL' || severity !== 'ALL'
 
   useEffect(() => { fetchAlerts() }, [locationBased, category, severity])
@@ -71,7 +70,7 @@ export default function DigestFeed() {
         </div>
       </div>
 
-      <FallbackBanner visible={hasUnverifiedAlerts} />
+      <FallbackBanner />
 
       <div className="card p-3 mb-6">
         <div className="flex flex-wrap items-center gap-3">
